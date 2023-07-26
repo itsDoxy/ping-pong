@@ -2,7 +2,7 @@ const canvasEl = document.querySelector("canvas"),
   canvasCtx = canvasEl.getContext("2d"),
   gapX = 15;
 
-const lineWidth = 15;
+const mouse = { x: 0, y: 0 }
 
 //Objeto do campo
 const field = {
@@ -29,16 +29,16 @@ const line = {
 }
 const leftPaddle = {
   x: gapX,
-  y: 100,
+  y: 0,
   w: line.w,
   h: 200,
+  _move: function(){
+    this.y = mouse.y - this.h / 2 ;
+  },
   draw: function() {
     canvasCtx.fillStyle = ("#FFFFFF");
-    canvasCtx.fillRect(
-    this.x,
-    this.y,
-    this.w,
-    this.h); 
+    canvasCtx.fillRect(this.x, this.y, this.w, this.h); 
+    this._move()
   },
 }
 
@@ -47,6 +47,10 @@ const rightPaddle = {
   y: 100,
   w: line.w,
   h: 200,
+  _move: function(){
+    this.y = ball.y
+
+  },
   draw: function() {
     canvasCtx.fillStyle = ("#FFFFFF");
     canvasCtx.fillRect(
@@ -54,6 +58,8 @@ const rightPaddle = {
     this.y,
     this.w,
     this.h); 
+
+    this._move()
   },
 }
 
@@ -71,18 +77,37 @@ const score = {
 }
 
 const ball = {
-  x: 300,
-  y: 200,
+  x: 370,
+  y: 120,
   r: 20,
+  speed: 3,
+  directionX: 1,
+  directionY: 1,
+  _calcPosition: function() {
+    if(
+      (this.y > field.h - this.r && this.directionY > 0)
+      ) {
+      this._reverseY()
+    }
+  },
+  _reverseX: function() {
+    this.directionX *= -1
+  },
+  _reverseY: function() {
+    this.directionY *= -1
+  },
+  _move: function() {
+    this.x += this.directionX * this.speed
+    this.y += this.directionY * this.speed
+  },
   draw: function(){
     canvasCtx.fillStyle = ("#FFFFFF");
     canvasCtx.beginPath()
-    canvasCtx.arc(
-      this.x,
-      this.y,
-      this.r,
-      0, 2 * Math.PI, false)
+    canvasCtx.arc(this.x, this.y, this.r, 0, 2 * Math.PI, false)
     canvasCtx.fill()
+    
+    this._calcPosition()
+    this._move()
   }
 }
 
@@ -101,5 +126,28 @@ function draw() {
   ball.draw()
 } 
 
-setup();
-draw();
+window.animateFrame = (function() {
+  return (
+    window.requestAnimationFrame ||
+    window.webkitRequestAnimationFrame ||
+    window.mozRequestAnimationFrame ||
+    window.oRequestAnimationFrame ||
+    window.msRequestAnimationFrame ||
+    function (callback) {
+      return window.setTimeout(callback, 1000 / 60)
+    }
+  )
+})();
+
+function main() {
+  animateFrame(main)
+  draw()
+}
+
+setup()
+main()
+
+canvasEl.addEventListener('mousemove', function(e){
+  mouse.x = e.pageX
+  mouse.y = e.pageY
+})
