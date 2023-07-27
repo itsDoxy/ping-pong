@@ -64,51 +64,53 @@ const rightPaddle = {
 }
 
 const score = {
-  human: 1,
-  computer: 2,
+  human: 'Player: ',
+  humanS: 2,
+  computer: 'Game: ',
+  computerS: 1,
   draw: function(){
       canvasCtx.font = "bold 72px Arial";
       canvasCtx.textAlign = "center";
       canvasCtx.textBaseline = "top";
       canvasCtx.fillStyle = '#01341D'
-      canvasCtx.fillText(this.human, field.w / 4, 50) //Left
-      canvasCtx.fillText(this.computer, field.w / 4 + field.w / 2 , 50) //Right
+      canvasCtx.fillText(this.human + this.humanS, field.w / 4, 50) //Left
+      canvasCtx.fillText(this.computer + this.computerS, field.w / 4 + field.w / 2 , 50) //Right
   }
 }
 
 const ball = {
-  x: 370,
-  y: 120,
-  r: 20,
-  speed: 3,
-  directionX: 1,
-  directionY: 1,
-  _calcPosition: function() {
-    if(
-      (this.y > field.h - this.r && this.directionY > 0)
-      ) {
-      this._reverseY()
+    x: 370,
+    y: 120,
+    r: 20,
+    speed: 3,
+    directionX: 1,
+    directionY: 1,
+    _calcPosition: function() {
+      if (
+          (this.y < 0 && this.directionY < 0) || 
+          (this.y > field.h - this.r && this.directionY > 0)
+        ) {
+        this._reverseY()}
+    },
+    _reverseX: function() {
+      this.directionX *= -1
+    },
+    _reverseY: function() {
+      this.directionY *= -1
+    },
+    _move: function() {
+      this.x += this.directionX * this.speed
+      this.y += this.directionY * this.speed
+    },
+    draw: function(){
+      canvasCtx.fillStyle = ("#FFFFFF");
+      canvasCtx.beginPath()
+      canvasCtx.arc(this.x, this.y, this.r, 0, 2 * Math.PI, false)
+      canvasCtx.fill()
+      
+      this._calcPosition()
+      this._move()
     }
-  },
-  _reverseX: function() {
-    this.directionX *= -1
-  },
-  _reverseY: function() {
-    this.directionY *= -1
-  },
-  _move: function() {
-    this.x += this.directionX * this.speed
-    this.y += this.directionY * this.speed
-  },
-  draw: function(){
-    canvasCtx.fillStyle = ("#FFFFFF");
-    canvasCtx.beginPath()
-    canvasCtx.arc(this.x, this.y, this.r, 0, 2 * Math.PI, false)
-    canvasCtx.fill()
-    
-    this._calcPosition()
-    this._move()
-  }
 }
 
 function setup() {
